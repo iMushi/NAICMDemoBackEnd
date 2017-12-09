@@ -25,4 +25,11 @@ api.post('/saveEnrolImage/:id' , [md_auth.ensureAuth,md_rem.remPrev, md_upload] 
 api.get('/getImageEnrol/:imageFile'  ,  EnrolController.getImageFile );
 
 
+
+api.get('/heroku' , (req, res) => {
+   res.status(200).send({message:"desde Heroku"});
+});
+
+
+
 module.exports = api;
