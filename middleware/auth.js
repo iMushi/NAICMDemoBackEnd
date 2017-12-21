@@ -11,12 +11,14 @@ var secret = 'claveSecreta';
 
 exports.ensureAuth = (req, res, next) => {
 
-    console.log("====> cookie =====>");
-    console.log(req.headers.cookie);
-
-
     let cookie = req.headers.cookie ? req.headers.cookie.split("=")[1] : null;
 
+    if(!cookie ){
+        cookie = req.headers.authorization ? req.headers.authorization.split("=")[1] : null;
+    }
+
+    console.log("====> cookie =====>");
+    console.log(cookie);
 
     if(!cookie){
         return res.status(403).send({message:'Forbidden'});
@@ -32,7 +34,7 @@ exports.ensureAuth = (req, res, next) => {
         }
 
     }catch(ex){
-        return res.status(404).send({message:'Token Invalido'});
+        return res.status(403).send({message:'Token Invalido'});
     }
 
     req.user = payload;

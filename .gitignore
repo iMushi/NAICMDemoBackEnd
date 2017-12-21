@@ -1,0 +1,6 @@
+# Directorio de Logs
+/cargaMasivaLogs
+
+#Carga de Zip
+/uploads/cargaZip
+/uploads/enrolPerson/*.*

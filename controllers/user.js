@@ -88,7 +88,7 @@ let login = (req, res) => {
                         var token = jwt.createToken(userCallback);
                         userCallback.password = null;
 
-                        res.cookie('NAICM', token , { expires: new Date(Date.now() + (3600*900) ), httpOnly: true });
+                        res.cookie('NAICM', token , { expires: new Date(Date.now() + (3600*900) ), httpOnly: true, path : '/' });
 
 
                         res.status(200).send({
