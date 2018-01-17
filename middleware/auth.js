@@ -17,7 +17,6 @@ exports.ensureAuth = (req, res, next) => {
         cookie = req.headers.authorization ? req.headers.authorization.split("=")[1] : null;
     }
 
-    console.log("====> cookie =====>");
     console.log(cookie);
 
     if(!cookie){

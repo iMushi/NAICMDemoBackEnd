@@ -1,20 +1,19 @@
 'use strict'
 
+let Empresa = require('../models/empresa')
+let Enrol = require('../models/enrolPerson');
+let CatEmpresa = require('../models/catempresa');
+let Eventual = require('../models/eventual');
+let CargaMasiva = require('../models/cargamasiva');
 
-var Empresa = require('../models/empresa')
-var Enrol = require('../models/enrolPerson');
-var CatEmpresa = require('../models/catempresa');
-var Eventual = require('../models/eventual');
-var CargaMasiva = require('../models/cargamasiva');
-
-var fs = require('fs');
-var path = require('path');
-var csv = require('csv');
-var Log = require('log');
-var unzip = require('unzip');
-var shell = require('shelljs');
-var fileExists = require('file-exists');
-var moment = require('moment');
+let fs = require('fs');
+let path = require('path');
+let csv = require('csv');
+let Log = require('log');
+let unzip = require('unzip');
+let shell = require('shelljs');
+let fileExists = require('file-exists');
+let moment = require('moment');
 
 let response = {status: 200, data: [], message: null};
 
@@ -23,12 +22,11 @@ let searchEnrol = (req, res) => {
     let query = req.query;
     let pageNumber = req.query.page;
     let limite = req.query.maxPerPage;
-    let idEmpresa = req.query.idEmpresa
+    let idEmpresa = req.query.idEmpresa;
 
     delete query.page;
     delete query.maxPerPage;
     delete query.idEmpresa;
-
 
     if (idEmpresa) { //Buscar primero id's de empresa
 
@@ -56,7 +54,7 @@ let searchEnrol = (req, res) => {
             (err, enrol) => {
                 if (err) return errorHandler(err);
                 if (!enrol.docs) return emtpyHandler(res);
-                fulfilled(res, req, enrol);
+                return fulfilled(res, req, enrol);
             });
     }
 
@@ -97,14 +95,12 @@ let saveEnrol = (req, res) => {
 let saveEnrolImage = (req, res) => {
     if (req.files) {
 
-        var file_path = req.files.image.path;
-        var file_split = file_path.split('/');
-        var file_name = file_split[2];
+        let  file_path = req.files.image.path;
+        let file_split = file_path.split('/');
+        let file_name = file_split[2];
+        let file_ext = file_name.split('\.')[1];
 
-        var ext_split = file_name.split('\.');
-        var file_ext = file_name.split('\.')[1];
-
-        var oldImage = req.params.imageid;
+        let oldImage = req.params.imageid;
 
         if (oldImage && oldImage !== 'null') {
             let oldImgPath = `./uploads/enrolPerson/${oldImage}`;
@@ -114,7 +110,7 @@ let saveEnrolImage = (req, res) => {
             });
         }
 
-        if (file_ext == 'png' || file_ext == 'jpg') {
+        if (file_ext === 'png' || file_ext ==='jpg') {
 
             Enrol.findByIdAndUpdate({_id: req.params.id}, {image: file_name}, {new: true}, (err, updateEnrol) => {
 
@@ -140,23 +136,20 @@ let saveEnrolImage = (req, res) => {
     } else {
         return fulfilled(res, req, {message: "No se ha cargado Imagen"});
     }
-
-
-}
+};
 
 let saveImageEventual = (req, res) => {
 
     if (req.files) {
 
-        var file_path = req.files.image.path;
-        var file_split = file_path.split('/');
-        var file_name = file_split[2];
+        let file_path = req.files.image.path;
+        let file_split = file_path.split('/');
+        let file_name = file_split[2];
 
-        var ext_split = file_name.split('\.');
-        var file_ext = file_name.split('\.')[1];
+        let file_ext = file_name.split('\.')[1];
 
 
-        if (file_ext == 'png' || file_ext == 'jpg') {
+        if (file_ext === 'png' || file_ext === 'jpg') {
 
             Eventual.findByIdAndUpdate({_id: req.params.id}, {imageBase64: file_name}, {new: true}, (err, updateEventual) => {
 
@@ -166,7 +159,12 @@ let saveImageEventual = (req, res) => {
                     if (!updateEventual) {
                         res.status(404).send({message: "Enrol Not Found"});
                     } else {
-                        return fulfilled(res, req, updateEventual);
+
+                            response.status=200;
+                            response.message="Acceso Eventual se ha creado.";
+                            response.data = updateEventual;
+
+                        return fulfilled(res, req, response);
                     }
                 }
             });
@@ -200,7 +198,7 @@ let getImageFile = (req, res) => {
 };
 
 let getImagePreEnrol = (req, res) => {
-    var imageFile = './'+req.params.imageFile.replace(/\|/g, '/');
+    var imageFile = './' + req.params.imageFile.replace(/\|/g, '/');
 
     console.log(imageFile);
 
@@ -214,7 +212,7 @@ let getImagePreEnrol = (req, res) => {
 };
 
 let getResultCarga = (req, res) => {
-    var logFile = './cargaMasivaLogs/'+req.params.logFile.replace(/\|/g, '/');
+    var logFile = './cargaMasivaLogs/' + req.params.logFile.replace(/\|/g, '/');
 
     console.log(logFile);
 
@@ -246,11 +244,8 @@ let cargaZip = (req, res) => {
         .on('entry', function (entry) {
             var fileName = entry.path;
 
-            if(!fileName.includes('__MACOSX/')){
-                entry.pipe(fs.createWriteStream(uploadPath + '/' + fileName));
-            }
+            entry.pipe(fs.createWriteStream(uploadPath + '/' + fileName));
 
-            entry.autodrain();
         })
         .on('close', function () {
                 req.fechaCargaMasiva = horaUpload;
@@ -342,6 +337,7 @@ let cargaMasiva = (req, res) => {
             enrolado.enrolComplete = 'false'; //Enrolado en false
             enrolado.enrolActive = 'false'; //Enrolado Activo en false
             enrolado.empresaCredId = '';
+            enrolado.biometricoFinal = '';
             enrolado.empresa = empresas.map(x => x._id);
             return enrolado.save();
         }
@@ -359,27 +355,27 @@ let cargaMasiva = (req, res) => {
                     ruta + ifeFile
                 ];
 
-                if(!fileExists.sync(ruta + ifeFile)){
+                if (!fileExists.sync(ruta + ifeFile)) {
                     errorStr += `Archivo IFE no encontrado (${ifeFile}).`;
                 }
 
-                if(!!licencia){
+                if (!!licencia) {
                     let licFile = `/${rowNumber}_LICENCIA.jpg`;
                     let tarjFile = `/${rowNumber}_TARJETA.jpg`;
 
-                    if(!fileExists.sync(ruta + licFile)){
+                    if (!fileExists.sync(ruta + licFile)) {
                         errorStr += `Archivo LICENCIA no encontrado (${licFile}).`;
                     }
-                    if(!fileExists.sync(ruta + tarjFile)){
+                    if (!fileExists.sync(ruta + tarjFile)) {
                         errorStr += `Archivo TARJETA no encontrado (${tarjFile}).`;
                     }
-                    rutaImagenes.push(ruta+licFile);
-                    rutaImagenes.push(ruta+tarjFile);
+                    rutaImagenes.push(ruta + licFile);
+                    rutaImagenes.push(ruta + tarjFile);
                 }
 
-                if(!!errorStr){
+                if (!!errorStr) {
                     reject(new Error(`Error Procesando Archivos Fila ==> ${rowNumber} ${errorStr}`));
-                }else{
+                } else {
                     resolve(rutaImagenes);
                 }
 
@@ -396,13 +392,14 @@ let cargaMasiva = (req, res) => {
                     const ocupaciones = regData[18].trim().split('|')  //ocupaciones de las empresas
                     const fechasContratos = regData[21].trim().split('|')// fechas de contratos
                     let rutaImagenes;
+                    console.log(regData);
                     return new Promise((resolve, reject) => {
                         Enrol.find({rfc: rfcValidacion}).then(
                             validateDuplicado
                         ).then(_ => {
                                 return validateFiles(regData, user, fechaCargaMasiva);
                             }
-                        ).then( ruta => {
+                        ).then(ruta => {
                                 rutaImagenes = ruta;
                                 return validateEmpresa(rowNumber, empresasId, regData);
                             }
@@ -412,7 +409,7 @@ let cargaMasiva = (req, res) => {
                             }
                         ).then(
                             empresasInfo => {
-                                return guardarInfo(regData, empresasInfo,rutaImagenes);
+                                return guardarInfo(regData, empresasInfo, rutaImagenes);
                             }
                         ).then(
                             resolve
@@ -446,7 +443,7 @@ let cargaMasiva = (req, res) => {
 
     fs.createReadStream(req.files.csvCargaMasiva.path).pipe(parser);
 
-    return res.status(200).send({message: "Archivos Cargados"});
+    return res.status(200).send({message: "Los Archivos han sido Cargados y seran Procesados."});
 };
 
 let saveEventual = (req, res) => {
@@ -501,7 +498,7 @@ let getCargaMasiva = (req, res) => {
     let page = req.query.page;
 
     CargaMasiva.paginate({
-        idUser : idUser
+        idUser: idUser
     }, {
         page: page, limit: Number(maxPage),
         populate: 'idUser'
