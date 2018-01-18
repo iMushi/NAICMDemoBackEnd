@@ -7,3 +7,5 @@
 /uploads/enrolPerson/*.zip
 /uploads/enrolPerson/*.png
 /uploads/enrolPerson/*.jpg
+
+.env
