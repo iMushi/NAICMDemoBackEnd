@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon index.js",
-    "startLinux" : "nohup node index.js > output & tail -f output"
+    "startLinux" : "nohup node index.js &"
   },
   "keywords": [],
   "author": "",

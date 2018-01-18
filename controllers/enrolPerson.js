@@ -228,7 +228,8 @@ let getResultCarga = (req, res) => {
 
 let cargaZip = (req, res) => {
 
-    let horaUpload = moment().format().replace(/T/, ' ').replace(/\..+/, '');
+    //let horaUpload = moment().format().replace(/T/, ' ').replace(/\..+/, '');
+    let horaUpload = moment(new Date()).format('YYYY-MM-DD-HH:mm');
     let uploadPath = './uploads/cargaZip/' + req.user.email + '/' + horaUpload;
 
     shell.mkdir('-p', uploadPath);
