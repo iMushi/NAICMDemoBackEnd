@@ -24,7 +24,6 @@ const Mongod = require('mongod');
 
 var privateKey  = fs.readFileSync('certificates/key.pem', 'utf8');
 var certificate = fs.readFileSync('certificates/cert.pem', 'utf8');
-
 var credentials = {key: privateKey, cert: certificate};
 
 //server.open((err) => {
@@ -36,11 +35,11 @@ var credentials = {key: privateKey, cert: certificate};
                 console.log("conectado a MongoDB ====> " + mongoURI);
 
 
-//                app.listen(port, _ => {
+/*                app.listen(port, _ => {
 
-  //                  console.log('Servidor Corriendo');
-    //            });
-
+                    console.log('Servidor Corriendo');
+                });
+*/
 
                 var httpsServer = https.createServer(credentials, app);
                 httpsServer.listen(8443);

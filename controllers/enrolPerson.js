@@ -10,7 +10,7 @@ let fs = require('fs-extra');
 let path = require('path');
 let csv = require('csv');
 let Log = require('log');
-let unzip = require('unzip');
+let unzip = require('unzip2');
 let shell = require('shelljs');
 let fileExists = require('file-exists');
 let moment = require('moment');
@@ -245,7 +245,9 @@ let cargaZip = (req, res) => {
         .on('entry', function (entry) {
             var fileName = entry.path;
 
-            entry.pipe(fs.createWriteStream(uploadPath + '/' + fileName));
+            if(!fileName.includes('MACOSX')){
+                entry.pipe(fs.createWriteStream(uploadPath + '/' + fileName));
+            }
 
         })
         .on('close', function () {
@@ -261,9 +263,6 @@ let cargaMasiva = (req, res) => {
     let fechaCargaMasiva = req.fechaCargaMasiva;
 
     var parser = csv.parse({delimiter: ';'}, function (err, cvsData) {
-
-
-
 
         let rutaLogs = `./cargaMasivaLogs/${user}/${fechaCargaMasiva}`;
         shell.mkdir('-p', rutaLogs);
