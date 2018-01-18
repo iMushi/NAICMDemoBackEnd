@@ -1,5 +1,5 @@
 # Directorio de Logs
-/cargaMasivaLogs
+/cargaMasivaLogs/*.log
 
 #Carga de Zip
 /uploads/cargaZip
