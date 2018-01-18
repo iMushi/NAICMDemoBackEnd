@@ -3,4 +3,7 @@
 
 #Carga de Zip
 /uploads/cargaZip
-/uploads/enrolPerson/*.*
+/uploads/enrolPerson/*.csv
+/uploads/enrolPerson/*.zip
+/uploads/enrolPerson/*.png
+/uploads/enrolPerson/*.jpg
