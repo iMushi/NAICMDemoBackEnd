@@ -6,7 +6,7 @@ let CatEmpresa = require('../models/catempresa');
 let Eventual = require('../models/eventual');
 let CargaMasiva = require('../models/cargamasiva');
 
-let fs = require('fs');
+let fs = require('fs-extra');
 let path = require('path');
 let csv = require('csv');
 let Log = require('log');
@@ -93,9 +93,10 @@ let saveEnrol = (req, res) => {
 }
 
 let saveEnrolImage = (req, res) => {
+
     if (req.files) {
 
-        let  file_path = req.files.image.path;
+        let file_path = req.files.image.path;
         let file_split = file_path.split('/');
         let file_name = file_split[2];
         let file_ext = file_name.split('\.')[1];
@@ -110,7 +111,7 @@ let saveEnrolImage = (req, res) => {
             });
         }
 
-        if (file_ext === 'png' || file_ext ==='jpg') {
+        if (file_ext === 'png' || file_ext === 'jpg') {
 
             Enrol.findByIdAndUpdate({_id: req.params.id}, {image: file_name}, {new: true}, (err, updateEnrol) => {
 
@@ -160,9 +161,9 @@ let saveImageEventual = (req, res) => {
                         res.status(404).send({message: "Enrol Not Found"});
                     } else {
 
-                            response.status=200;
-                            response.message="Acceso Eventual se ha creado.";
-                            response.data = updateEventual;
+                        response.status = 200;
+                        response.message = "Acceso Eventual se ha creado.";
+                        response.data = updateEventual;
 
                         return fulfilled(res, req, response);
                     }
@@ -260,6 +261,9 @@ let cargaMasiva = (req, res) => {
     let fechaCargaMasiva = req.fechaCargaMasiva;
 
     var parser = csv.parse({delimiter: ';'}, function (err, cvsData) {
+
+
+
 
         let rutaLogs = `./cargaMasivaLogs/${user}/${fechaCargaMasiva}`;
         shell.mkdir('-p', rutaLogs);
@@ -510,6 +514,41 @@ let getCargaMasiva = (req, res) => {
 
 };
 
+let resetInfo = (req,res) => {
+
+    Enrol.remove({}, err => {});
+    Eventual.remove({}, err => {});
+    CargaMasiva.remove({}, err => {});
+    Empresa.remove({}, err => {});
+
+    const directory = './uploads/enrolPerson/';
+
+    delfiles('./uploads/enrolPerson/');
+    delfiles('./uploads/cargaZip/');
+    delfiles('./cargaMasivaLogs/');
+
+    function delfiles (directory) {
+        fs.readdir(directory, (err, files) => {
+            if (err) throw err;
+
+            for (const file of files) {
+                if (file.includes('.keep')){
+                    continue;
+                }
+                fs.remove(path.join(directory, file), err => {
+                    if (err) throw err;
+                });
+            }
+        });
+    }
+
+
+    response.status=200;
+    response.message='Limpiado Correcto';
+
+    return fulfilled(res, req,response);
+}
+
 const errorHandler = (req, res, err) => {
     response.status = 501;
     response.message = typeof err == 'object' ? err.message : err;
@@ -529,6 +568,12 @@ const cookieHandler = (res, req) => {
     res.cookie('NAICM', req.headers.cookie.split("=")[1], {expires: new Date(Date.now() + (3600 * 900)), httpOnly: true, path: '/'});
 };
 
+const delay = (seconds) => {
+     var waitTill = new Date(new Date().getTime() + seconds * 1000);
+     while(waitTill > new Date()){
+     }
+}
+
 module.exports = {
     searchEnrol,
     saveEnrol,
@@ -542,5 +587,6 @@ module.exports = {
     cargaZip,
     getImagePreEnrol,
     getCargaMasiva,
-    getResultCarga
+    getResultCarga,
+    resetInfo
 }

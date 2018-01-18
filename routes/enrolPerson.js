@@ -28,5 +28,7 @@ api.get('/getEventuales' , md_auth.ensureAuth ,  EnrolController.getEventuales )
 api.post('/cargaZip' ,[md_auth.ensureAuth,md_upload], EnrolController.cargaZip);
 api.get('/getCargaMasiva/:idUser' , md_auth.ensureAuth, EnrolController.getCargaMasiva);
 
+api.post('/resetInfo' , md_auth.ensureAuth, EnrolController.resetInfo);
+
 
 module.exports = api;
